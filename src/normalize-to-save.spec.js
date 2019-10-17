@@ -1,7 +1,10 @@
-import fillDefaults from 'json-schema-fill-defaults';
+const {
+  fillDefaults, normalizeToSave,
+  dateSchema, numberSchema, stringSchema
+} = require('../dist/bundle');
 
-import { normalizeToSave } from './normalize-to-save';
-import { dateSchema, IJsonSchema, numberSchema, stringSchema } from './json-schema';
+// import { normalizeToSave } from './normalize-to-save';
+// import { dateSchema, IJsonSchema, numberSchema, stringSchema } from './json-schema';
 
 describe('normalize to save', () => {
   describe('object', () => {
@@ -15,7 +18,7 @@ describe('normalize to save', () => {
       },
     };
 
-    const schema: IJsonSchema = {
+    const schema/*: IJsonSchema*/ = {
       type: 'object',
       properties: {
         type: codeDescriptionSchema,
@@ -116,15 +119,6 @@ describe('normalize to save', () => {
 
     it('should keep value for defined', () => {
       expect(normalizeToSave(dateSchema, 'asdf')).toBe('asdf');
-    });
-  });
-
-  describe('fillDefaults date', () => {
-    it('should be empty for empty', () => {
-      expect(fillDefaults(undefined, dateSchema)).toBeUndefined();
-    });
-    it('should keep value empty for defined', () => {
-      expect(fillDefaults('2018', dateSchema)).toBe('2018');
     });
   });
 

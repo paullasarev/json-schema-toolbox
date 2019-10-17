@@ -1,5 +1,4 @@
-import { fillDefaults } from './fill-defaults';
-import { numberSchema, stringSchema } from './json-schema';
+const { fillDefaults, numberSchema, stringSchema, dateSchema } = require('../dist/bundle');
 
 describe('fillDefaults', ()=>{
   const schemaObj = {
@@ -24,4 +23,15 @@ describe('fillDefaults', ()=>{
     const value = fillDefaults(schemaObj)(obj);
     expect(value).toEqual(obj);
   });
+
+  describe('date', () => {
+    it('should be empty for empty', () => {
+      expect(fillDefaults(dateSchema, undefined)).toBeUndefined();
+    });
+    it('should keep value empty for defined', () => {
+      expect(fillDefaults(dateSchema, '2018')).toBe('2018');
+    });
+  });
+
+
 });
