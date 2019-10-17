@@ -1,0 +1,47 @@
+{
+  "extends": [
+    "tslint:latest",
+    "tslint-react",
+    "tslint-config-prettier",
+    "tslint-config-airbnb"
+  ],
+  "rules": {
+    "no-var-requires": false,
+    "import-name": false,
+    "prefer-array-literal": [true, { "allow-type-parameters": true }],
+    "ter-arrow-parens": [2, "as-needed", { "requireForBlockBody": true }],
+    "interface-name": [false, "never-prefix"],
+    "ban": [
+      true,
+      ["Object", "assign", "use TS2.1 object spread { ...a, ...b }"],
+      ["describe", "only"],
+      ["it", "only"]
+    ],
+    "object-literal-sort-keys": false,
+    "variable-name": {
+      "options": [
+        "ban-keywords",
+        "check-format",
+        "allow-leading-underscore",
+        "allow-pascal-case"
+      ]
+    },
+    "max-line-length": [true, 180],
+    "max-classes-per-file": [true, 5],
+    "ordered-imports": false,
+    "quotemark": [true, "single", "jsx-single"],
+    "no-submodule-imports": false,
+    "no-implicit-dependencies": false,
+    "no-empty": false,
+    "no-increment-decrement": false,
+    "jsx-boolean-value": false,
+    "object-shorthand-properties-first": false,
+    "align": [true, "parameters"],
+    "no-shadowed-variable": false,
+    "no-boolean-literal-compare": false,
+    "jsx-no-lambda": false
+  },
+  "jsRules": {
+    "object-literal-shorthand": true
+  }
+}
