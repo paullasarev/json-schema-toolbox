@@ -5,12 +5,17 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var lodash = require('lodash');
 var fp = require('lodash/fp');
 
-const schemaDefault = (schema, defaultValue) => ({
-  ...schema,
-  default: defaultValue,
-  required: true,
-});
-const schemaRequired = (schema, required) => ({ ...schema, required });
+function schemaDefault(schema, defaultValue) {
+  return {
+    ...schema,
+    default: defaultValue,
+    required: true,
+  };
+}
+
+function schemaRequired (schema, required) {
+  return { ...schema, required };
+}
 
 const stringSchema = { type: 'string' };
 const dateSchema = { type: 'date' };
@@ -22,11 +27,13 @@ const booleanSchema = { type: 'boolean' };
 const trueSchema = schemaDefault(booleanSchema, true);
 const falseSchema = schemaDefault(booleanSchema, false);
 
-const enumSchema = (enumValues, defaultValue = undefined) => ({
-  type: 'string',
-  enum: enumValues,
-  default: defaultValue,
-});
+function enumSchema (enumValues, defaultValue = undefined) {
+  return {
+    type: 'string',
+    enum: enumValues,
+    default: defaultValue,
+  };
+}
 
 function arraySchema(schema, defaultValue = []) {
   return {
@@ -63,88 +70,105 @@ function withId(schema, id) {
 }
 
 function isDefined(val) {
-    return val !== undefined;
+  return val !== undefined;
 }
+
 function processNumber(schema, data) {
-    if (!isDefined(data) || lodash.isNull(data) || data === '') {
-        return undefined;
-    }
-    if (lodash.isString(data) && lodash.includes(data, ',')) {
-        // tslint:disable-next-line:no-parameter-reassignment
-        data = lodash.replace(data, /,/g, '.');
-    }
-    return Number(data);
+  if (!isDefined(data) || lodash.isNull(data) || data === '') {
+    return undefined;
+  }
+  if (lodash.isString(data) && lodash.includes(data, ',')) {
+    data = lodash.replace(data, /,/g, '.');
+  }
+  return Number(data);
 }
+
 function processString(schema, data) {
-    if (lodash.isUndefined(data)) {
-        return data;
-    }
-    if (!lodash.isString(data)) {
-        return String(data);
-    }
+  if (lodash.isUndefined(data)) {
     return data;
+  }
+  if (!lodash.isString(data)) {
+    return String(data);
+  }
+  return data;
 }
+
 function processDate(schema, data) {
-    if (lodash.isUndefined(data) || data === '-') {
-        return schema.default;
-    }
-    return data;
+  if (lodash.isUndefined(data) || data === '-') {
+    return schema.default;
+  }
+  return data;
 }
+
 function processNode(schema, data) {
-    switch (schema.type) {
-        case 'object':
-            return processObject(schema, data); // eslint-disable-line no-use-before-define
-        case 'array':
-            return processArray(schema, data); // eslint-disable-line no-use-before-define
-        case 'number':
-            return processNumber(schema, data);
-        case 'string':
-            return processString(schema, data);
-        case 'date':
-            return processDate(schema, data);
-        default:
-            return data;
-    }
+  switch (schema.type) {
+    case 'object':
+      return processObject(schema, data); // eslint-disable-line no-use-before-define
+
+    case 'array':
+      return processArray(schema, data); // eslint-disable-line no-use-before-define
+
+    case 'number':
+      return processNumber(schema, data);
+
+    case 'string':
+      return processString(schema, data);
+
+    case 'date':
+      return processDate(schema, data);
+
+    default:
+      return data;
+  }
 }
+
 function processObject(schema, node) {
-    var val = lodash.omitBy(node, lodash.isUndefined);
-    if (lodash.isEmpty(val)) {
-        return null;
-    }
-    var result = {};
-    if (node) {
-        lodash.forOwn(node, function (propertyValue, propertyName) {
-            if (isDefined(propertyValue)) {
-                result[propertyName] = propertyValue;
-            }
-        });
-    }
-    lodash.forOwn(schema.properties, function (propertySchema, propertyName) {
-        if (propertySchema.required
-            || (isDefined(node) && isDefined(node[propertyName]))) {
-            var nodeValue = lodash.isUndefined(node) ? undefined : node[propertyName];
-            result[propertyName] = processNode(propertySchema, nodeValue);
-        }
+
+  const val = lodash.omitBy(node, lodash.isUndefined);
+  if (lodash.isEmpty(val)) {
+    return null;
+  }
+
+  const result = {};
+
+  if (node) {
+    lodash.forOwn(node, (propertyValue, propertyName) => {
+      if (isDefined(propertyValue)) {
+        result[propertyName] = propertyValue;
+      }
     });
-    return result;
+  }
+  lodash.forOwn(schema.properties, (propertySchema, propertyName) => {
+    if (propertySchema.required
+      || (isDefined(node) && isDefined(node[propertyName]))) {
+      const nodeValue = lodash.isUndefined(node) ? undefined : node[propertyName];
+      result[propertyName] = processNode(propertySchema, nodeValue);
+    }
+  });
+
+  return result;
 }
+
 function processArray(schema, data) {
-    if (lodash.isUndefined(data)) {
-        if (schema.default) {
-            return schema.default;
-        }
-        return undefined;
+  if (lodash.isUndefined(data)) {
+    if (schema.default) {
+      return schema.default;
     }
-    var result = [];
-    if (schema.items) {
-        for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
-            var node = data_1[_i];
-            result.push(processNode(schema.items, node));
-        }
+
+    return undefined;
+  }
+
+  const result = [];
+
+  if (schema.items) {
+    for (const node of data) {
+      result.push(processNode(schema.items, node));
     }
-    return result;
+  }
+  return result;
 }
-var normalizeToSave = fp.curryN(2, function (schema, data) { return processNode(schema, data); });
+
+const normalizeToSave = fp.curryN(2, (schema, data) => processNode(schema, data));
 
 function forOwn(object, callback) {
   Object.keys(object).map(key => callback(object[key], key, object));
@@ -164,7 +188,15 @@ function autoDefaults(data, schema) {
         return processArray(schemaNode, dataNode); // eslint-disable-line no-use-before-define
 
       default:
-        if (isDefined$1(dataNode)) return dataNode;
+        if (isDefined$1(dataNode)) {
+          if(schemaNode.type === 'string' && typeof dataNode !== 'string') {
+            return String(dataNode);
+          }
+          if(schemaNode.type === 'number' && typeof dataNode !== 'number') {
+            return Number(dataNode);
+          }
+          return dataNode;
+        }
         if (isDefined$1(schemaNode.default)) return schemaNode.default;
         return undefined;
     }
@@ -212,26 +244,8 @@ function autoDefaults(data, schema) {
   return processNode(schema, data);
 }
 
-var fillDefaults = fp.curryN(2, function (schema, data) { return autoDefaults(data, schema); });
-function getDataBySchema(schema) {
-    return function (state, action) { return fillDefaults(schema, action.data); };
-}
-function getDataByArraySchema(schema) {
-    var aSchema = arraySchema(schema);
-    return function (state, action) {
-        return fillDefaults(aSchema, action.data);
-    };
-}
-function getDefaultsBySchema(schema) {
-    return function () { return fillDefaults(schema, {}); };
-}
-function getDefaultsByArraySchema(schema) {
-    return function () { return fillDefaults(arraySchema(schema), {}); };
-}
-function fillDefaultsArray(schema, obj) {
-    if (obj === void 0) { obj = {}; }
-    return fillDefaults(arraySchema(schema), obj);
-}
+const fillDefaults = fp.curryN(2, (schema, data) => autoDefaults(data, schema));
+const fillDefaultsArray = fp.curryN(2, (schema, data) => autoDefaults(data, arraySchema(schema)));
 
 exports.arraySchema = arraySchema;
 exports.booleanSchema = booleanSchema;
@@ -242,10 +256,6 @@ exports.exactSchema = exactSchema;
 exports.falseSchema = falseSchema;
 exports.fillDefaults = fillDefaults;
 exports.fillDefaultsArray = fillDefaultsArray;
-exports.getDataByArraySchema = getDataByArraySchema;
-exports.getDataBySchema = getDataBySchema;
-exports.getDefaultsByArraySchema = getDefaultsByArraySchema;
-exports.getDefaultsBySchema = getDefaultsBySchema;
 exports.limitedStringSchema = limitedStringSchema;
 exports.normalizeToSave = normalizeToSave;
 exports.numberSchema = numberSchema;

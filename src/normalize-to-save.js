@@ -1,23 +1,21 @@
 import { isEmpty, isUndefined, isNull, isString, omitBy, forOwn, includes, replace } from 'lodash';
 import { curryN } from 'lodash/fp';
-import { IJsonSchema } from './json-schema';
 
-function isDefined(val: any) {
+function isDefined(val) {
   return val !== undefined;
 }
 
-function processNumber(schema: IJsonSchema, data: any) {
+function processNumber(schema, data) {
   if (!isDefined(data) || isNull(data) || data === '') {
     return undefined;
   }
   if (isString(data) && includes(data, ',')) {
-    // tslint:disable-next-line:no-parameter-reassignment
     data = replace(data, /,/g, '.');
   }
   return Number(data);
 }
 
-function processString(schema: IJsonSchema, data: any) {
+function processString(schema, data) {
   if (isUndefined(data)) {
     return data;
   }
@@ -27,14 +25,14 @@ function processString(schema: IJsonSchema, data: any) {
   return data;
 }
 
-function processDate(schema: IJsonSchema, data: any) {
+function processDate(schema, data) {
   if (isUndefined(data) || data === '-') {
     return schema.default;
   }
   return data;
 }
 
-function processNode(schema: IJsonSchema, data: any) {
+function processNode(schema, data) {
   switch (schema.type) {
     case 'object':
       return processObject(schema, data); // eslint-disable-line no-use-before-define
@@ -56,23 +54,23 @@ function processNode(schema: IJsonSchema, data: any) {
   }
 }
 
-function processObject(schema: IJsonSchema, node: any) {
+function processObject(schema, node) {
 
   const val = omitBy(node, isUndefined);
   if (isEmpty(val)) {
     return null;
   }
 
-  const result: any = {};
+  const result = {};
 
   if (node) {
-    forOwn(node, (propertyValue: any, propertyName: string) => {
+    forOwn(node, (propertyValue, propertyName) => {
       if (isDefined(propertyValue)) {
         result[propertyName] = propertyValue;
       }
     });
   }
-  forOwn(schema.properties, (propertySchema: IJsonSchema, propertyName: string) => {
+  forOwn(schema.properties, (propertySchema, propertyName) => {
     if (propertySchema.required
       || (isDefined(node) && isDefined(node[propertyName]))) {
       const nodeValue = isUndefined(node) ? undefined : node[propertyName];
@@ -83,7 +81,7 @@ function processObject(schema: IJsonSchema, node: any) {
   return result;
 }
 
-function processArray(schema: IJsonSchema, data: any): any {
+function processArray(schema, data) {
   if (isUndefined(data)) {
     if (schema.default) {
       return schema.default;
@@ -102,4 +100,4 @@ function processArray(schema: IJsonSchema, data: any): any {
   return result;
 }
 
-export const normalizeToSave = curryN(2, (schema: IJsonSchema, data: any) => processNode(schema, data));
+export const normalizeToSave = curryN(2, (schema, data) => processNode(schema, data));

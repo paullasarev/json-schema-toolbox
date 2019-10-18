@@ -2,14 +2,14 @@
   "name": "redux-reducer-actions",
   "version": "1.0.0",
   "description": "redux store enhancer which allows fire action in reducer",
-  "main": "dist/bundle.js",
+  "main": "dist/json-schema-toolbox.js",
+  "types": "dist/json-schema-toolbox.t.ts",
   "scripts": {
     "preinstall": "rollup -v",
     "build:dev": "rollup -c",
     "build:prod": "rollup -c --environment BUILD:production",
     "build:watch": "rollup -c --watch",
-    "build": "npm run build:prod",
-    "build:all": "npm run build:dev && npm run build:prod",
+    "build": "npm run build:dev && npm run build:prod",
     "test:watch": "jest --watch",
     "test": "jest"
   },
@@ -31,14 +31,10 @@
   },
   "homepage": "https://github.com/paullasarev/json-schema-toolbox#readme",
   "devDependencies": {
-    "@types/jest": "^24.0.19",
-    "@types/lodash": "^4.14.144",
-    "@types/node": "^12.11.1",
-    "@types/webpack-env": "^1.14.1",
+    "@babel/preset-env": "^7.6.3",
     "jest": "^24.9.0",
-    "rollup-plugin-terser": "^5.1.1",
-    "rollup-plugin-typescript2": "^0.24.3",
-    "typescript": "^3.6.4"
+    "rollup-plugin-copy": "^3.1.0",
+    "rollup-plugin-terser": "^5.1.1"
   },
   "dependencies": {
     "lodash": "^4.17.15"

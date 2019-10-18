@@ -16,7 +16,15 @@ export default function autoDefaults(data, schema) {
         return processArray(schemaNode, dataNode); // eslint-disable-line no-use-before-define
 
       default:
-        if (isDefined(dataNode)) return dataNode;
+        if (isDefined(dataNode)) {
+          if(schemaNode.type === 'string' && typeof dataNode !== 'string') {
+            return String(dataNode);
+          }
+          if(schemaNode.type === 'number' && typeof dataNode !== 'number') {
+            return Number(dataNode);
+          }
+          return dataNode;
+        }
         if (isDefined(schemaNode.default)) return schemaNode.default;
         return undefined;
     }

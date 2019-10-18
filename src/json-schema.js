@@ -1,11 +1,16 @@
 import { keys, omit } from 'lodash';
 
-export const schemaDefault = (schema, defaultValue) => ({
-  ...schema,
-  default: defaultValue,
-  required: true,
-});
-export const schemaRequired = (schema, required) => ({ ...schema, required });
+export function schemaDefault(schema, defaultValue) {
+  return {
+    ...schema,
+    default: defaultValue,
+    required: true,
+  };
+}
+
+export function schemaRequired (schema, required) {
+  return { ...schema, required };
+}
 
 export const stringSchema = { type: 'string' };
 export const dateSchema = { type: 'date' };
@@ -17,11 +22,13 @@ export const booleanSchema = { type: 'boolean' };
 export const trueSchema = schemaDefault(booleanSchema, true);
 export const falseSchema = schemaDefault(booleanSchema, false);
 
-export const enumSchema = (enumValues, defaultValue = undefined) => ({
-  type: 'string',
-  enum: enumValues,
-  default: defaultValue,
-});
+export function enumSchema (enumValues, defaultValue = undefined) {
+  return {
+    type: 'string',
+    enum: enumValues,
+    default: defaultValue,
+  };
+}
 
 export function arraySchema(schema, defaultValue = []) {
   return {

@@ -1,10 +1,9 @@
 const {
-  fillDefaults, normalizeToSave,
   dateSchema, numberSchema, stringSchema
-} = require('../dist/bundle');
-
-// import { normalizeToSave } from './normalize-to-save';
-// import { dateSchema, IJsonSchema, numberSchema, stringSchema } from './json-schema';
+} = require('./json-schema');
+const {
+  normalizeToSave,
+} = require('./normalize-to-save');
 
 describe('normalize to save', () => {
   describe('object', () => {
@@ -18,7 +17,7 @@ describe('normalize to save', () => {
       },
     };
 
-    const schema/*: IJsonSchema*/ = {
+    const schema = {
       type: 'object',
       properties: {
         type: codeDescriptionSchema,

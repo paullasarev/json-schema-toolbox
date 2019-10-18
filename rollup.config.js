@@ -1,5 +1,5 @@
 const { terser } = require('rollup-plugin-terser');
-import typescript from 'rollup-plugin-typescript2';
+const copy = require('rollup-plugin-copy');
 
 const isProduction = process.env.BUILD === 'production';
 
@@ -7,12 +7,14 @@ export default [
   {
     input: 'src/index.js',
     output: {
-      file: isProduction ? 'dist/bundle.min.js' : 'dist/bundle.js',
+      file: isProduction ? 'dist/json-schema-toolbox.min.js' : 'dist/json-schema-toolbox.js',
       format: 'cjs',
     },
     plugins: [
       isProduction && terser(),
-      typescript(),
+      copy({
+        targets: [{ src: 'src/index.d.ts', dest: 'dist', rename: 'json-schema-toolbox.d.ts' }]
+      }),
     ],
     external: ['lodash', 'lodash/fp'],
   },
