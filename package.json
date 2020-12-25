@@ -1,5 +1,5 @@
 {
-  "name": "redux-reducer-actions",
+  "name": "json-schema-toolbox",
   "version": "1.0.1",
   "description": "json schema toolbox",
   "main": "dist/json-schema-toolbox.js",
