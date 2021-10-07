@@ -4,7 +4,6 @@ export function schemaDefault(schema, defaultValue) {
   return {
     ...schema,
     default: defaultValue,
-    required: true,
   };
 }
 
@@ -36,6 +35,13 @@ export function arraySchema(schema, defaultValue = []) {
     default: defaultValue,
     items: schema,
   };
+}
+
+export function objectSchema(properties=[]) {
+  return {
+    type: 'object',
+    properties,
+  }
 }
 
 export function requiredSchema(schema) {

@@ -9,7 +9,6 @@ function schemaDefault(schema, defaultValue) {
   return {
     ...schema,
     default: defaultValue,
-    required: true,
   };
 }
 
@@ -43,6 +42,13 @@ function arraySchema(schema, defaultValue = []) {
   };
 }
 
+function objectSchema(properties=[]) {
+  return {
+    type: 'object',
+    properties,
+  }
+}
+
 function requiredSchema(schema) {
   return {
     ...schema,
@@ -69,12 +75,12 @@ function withId(schema, id) {
   };
 }
 
-function isDefined(val) {
+function isDefined$1(val) {
   return val !== undefined;
 }
 
 function processNumber(schema, data) {
-  if (!isDefined(data) || lodash.isNull(data) || data === '') {
+  if (!isDefined$1(data) || lodash.isNull(data) || data === '') {
     return undefined;
   }
   if (lodash.isString(data) && lodash.includes(data, ',')) {
@@ -100,13 +106,13 @@ function processDate(schema, data) {
   return data;
 }
 
-function processNode(schema, data) {
+function processNode$1(schema, data) {
   switch (schema.type) {
     case 'object':
-      return processObject(schema, data); // eslint-disable-line no-use-before-define
+      return processObject$1(schema, data); // eslint-disable-line no-use-before-define
 
     case 'array':
-      return processArray(schema, data); // eslint-disable-line no-use-before-define
+      return processArray$1(schema, data); // eslint-disable-line no-use-before-define
 
     case 'number':
       return processNumber(schema, data);
@@ -122,7 +128,7 @@ function processNode(schema, data) {
   }
 }
 
-function processObject(schema, node) {
+function processObject$1(schema, node) {
 
   const val = lodash.omitBy(node, lodash.isUndefined);
   if (lodash.isEmpty(val)) {
@@ -133,23 +139,23 @@ function processObject(schema, node) {
 
   if (node) {
     lodash.forOwn(node, (propertyValue, propertyName) => {
-      if (isDefined(propertyValue)) {
+      if (isDefined$1(propertyValue)) {
         result[propertyName] = propertyValue;
       }
     });
   }
   lodash.forOwn(schema.properties, (propertySchema, propertyName) => {
     if (propertySchema.required
-      || (isDefined(node) && isDefined(node[propertyName]))) {
+      || (isDefined$1(node) && isDefined$1(node[propertyName]))) {
       const nodeValue = lodash.isUndefined(node) ? undefined : node[propertyName];
-      result[propertyName] = processNode(propertySchema, nodeValue);
+      result[propertyName] = processNode$1(propertySchema, nodeValue);
     }
   });
 
   return result;
 }
 
-function processArray(schema, data) {
+function processArray$1(schema, data) {
   if (lodash.isUndefined(data)) {
     if (schema.default) {
       return schema.default;
@@ -162,85 +168,92 @@ function processArray(schema, data) {
 
   if (schema.items) {
     for (const node of data) {
-      result.push(processNode(schema.items, node));
+      result.push(processNode$1(schema.items, node));
     }
   }
   return result;
 }
 
-const normalizeToSave = fp.curryN(2, (schema, data) => processNode(schema, data));
+const normalizeToSave = fp.curryN(2, (schema, data) => processNode$1(schema, data));
 
-function forOwn(object, callback) {
-  Object.keys(object).map(key => callback(object[key], key, object));
-}
-
-function isDefined$1(obj) {
+function isDefined(obj) {
   return obj !== undefined && obj !== null;
 }
 
-function autoDefaults(data, schema) {
-  function processNode(schemaNode, dataNode) {
-    switch (schemaNode.type) {
-      case 'object':
-        return processObject(schemaNode, dataNode); // eslint-disable-line no-use-before-define
+function isType(schemaNode, dataNode, schemaType, nodeType) {
+  return schemaNode.type === schemaType && typeof dataNode !== nodeType;
+}
 
-      case 'array':
-        return processArray(schemaNode, dataNode); // eslint-disable-line no-use-before-define
-
-      default:
-        if (isDefined$1(dataNode)) {
-          if(schemaNode.type === 'string' && typeof dataNode !== 'string') {
-            return String(dataNode);
-          }
-          if(schemaNode.type === 'number' && typeof dataNode !== 'number') {
-            return Number(dataNode);
-          }
-          return dataNode;
+function processNode(schemaNode, dataNode) {
+  switch (schemaNode.type) {
+    case 'object':
+      return processObject(schemaNode, dataNode); //// eslint-disable-line no-use-before-define
+    
+    case 'array':
+      return processArray(schemaNode, dataNode); //// eslint-disable-line no-use-before-define
+    
+    default:
+      if (isDefined(dataNode)) {
+        if (isType(schemaNode, dataNode, 'string', 'string')) {
+          return String(dataNode);
         }
-        if (isDefined$1(schemaNode.default)) return schemaNode.default;
-        return undefined;
-    }
-  }
-
-  function processObject(schemaNode, dataNode) {
-    const result = {};
-
-    forOwn(schemaNode.properties, (propertySchema, propertyName) => {
-      if (
-        propertySchema.required ||
-        (isDefined$1(dataNode) && isDefined$1(dataNode[propertyName]))) {
-        const nodeValue = isDefined$1(dataNode) ? dataNode[propertyName] : undefined;
-        result[propertyName] = processNode(propertySchema, nodeValue);
+        if (isType(schemaNode, dataNode, 'number', 'number')) {
+          return Number(dataNode);
+        }
+        if (isType(schemaNode, dataNode, 'integer', 'number')) {
+          return Number(dataNode);
+        }
+        return dataNode;
       }
-    });
-
-    if (dataNode) {
-      forOwn(dataNode, (propertyValue, propertyName) => {
-        if (!isDefined$1(result[propertyName]) && isDefined$1(propertyValue)) {
-          result[propertyName] = propertyValue;
-        }
-      });
-    }
-    return result;
-  }
-
-  function processArray(schemaNode, dataNode) {
-    if (dataNode === undefined) {
-      if (schemaNode.default) {
+      if (isDefined(schemaNode.default)) {
         return schemaNode.default;
       }
-
+      if (schemaNode.type === 'integer') {
+        return 0;
+      }
       return undefined;
-    }
-
-    const result = [];
-
-    for (let i = 0; i < dataNode.length; i++) {
-      result.push(processNode(schemaNode.items, dataNode[i]));
-    }
-    return result;
   }
+}
 
+function processObject(schemaNode, dataNode) {
+  const result = {};
+  
+  lodash.forOwn(schemaNode.properties, (propertySchema, propertyName) => {
+    const isRequired =
+      lodash.isArray(schemaNode.required) && schemaNode.required.indexOf(propertyName) >= 0;
+    if (isRequired || (isDefined(dataNode) && isDefined(dataNode[propertyName]))) {
+      const nodeValue = isDefined(dataNode) ? dataNode[propertyName] : undefined;
+      result[propertyName] = processNode(propertySchema, nodeValue);
+    }
+  });
+  
+  if (dataNode) {
+    lodash.forOwn(dataNode, (propertyValue, propertyName) => {
+      if (!isDefined(result[propertyName]) && isDefined(propertyValue)) {
+        result[propertyName] = propertyValue;
+      }
+    });
+  }
+  return result;
+}
+
+function processArray(schemaNode, dataNode) {
+  if (dataNode === undefined || dataNode === null) {
+    if (schemaNode.default) {
+      return schemaNode.default;
+    }
+    return [];
+  }
+  
+  const result = [];
+  
+  for (let i = 0; i < dataNode.length; i++) {
+    result.push(processNode(schemaNode.items, dataNode[i]));
+  }
+  return result;
+}
+
+function autoDefaults(data, schema) {
   return processNode(schema, data);
 }
 
@@ -259,6 +272,7 @@ exports.fillDefaultsArray = fillDefaultsArray;
 exports.limitedStringSchema = limitedStringSchema;
 exports.normalizeToSave = normalizeToSave;
 exports.numberSchema = numberSchema;
+exports.objectSchema = objectSchema;
 exports.omitId = omitId;
 exports.requiredSchema = requiredSchema;
 exports.schemaDefault = schemaDefault;

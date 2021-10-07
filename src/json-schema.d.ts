@@ -8,11 +8,11 @@ export interface IJsonSchema {
 }
 
 // noinspection JSUnusedLocalSymbols
-export const schemaDefault = (schema: IJsonSchema, defaultValue: any) => IJsonSchema;
+export const schemaDefault : (schema: IJsonSchema, defaultValue: any) => IJsonSchema;
 // noinspection JSUnusedLocalSymbols
-export const schemaRequired = (schema: IJsonSchema, required: any) => IJsonSchema;
+export const schemaRequired : (schema: IJsonSchema, required: any) => IJsonSchema;
 // noinspection JSUnusedLocalSymbols
-export const enumSchema = (enumValues: string[], defaultValue?: string) => IJsonSchema;
+export const enumSchema : (enumValues: string[], defaultValue?: string) => IJsonSchema;
 
 export const stringSchema: IJsonSchema;
 export const dateSchema: IJsonSchema;
@@ -22,7 +22,9 @@ export const booleanSchema: IJsonSchema;
 export const trueSchema: IJsonSchema;
 export const falseSchema: IJsonSchema;
 
-export function arraySchema(schema: IJsonSchema, defaultValue = []): IJsonSchema;
+export function objectSchema(properties?: IJsonSchema[]): IJsonSchema;
+export function arraySchema(itemSchema: IJsonSchema, defaultValue?): IJsonSchema;
 export function requiredSchema(schema: IJsonSchema): IJsonSchema;
 export function omitId(schema: IJsonSchema): IJsonSchema;
 export function withId(schema: IJsonSchema, id: string): IJsonSchema;
+

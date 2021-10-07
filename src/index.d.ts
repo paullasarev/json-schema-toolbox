@@ -19,7 +19,8 @@ export const booleanSchema: IJsonSchema;
 export const trueSchema: IJsonSchema;
 export const falseSchema: IJsonSchema;
 
-export function arraySchema(schema: IJsonSchema, defaultValue?): IJsonSchema;
+export function objectSchema(properties?: IJsonSchema[]): IJsonSchema;
+export function arraySchema(itemSchema: IJsonSchema, defaultValue?): IJsonSchema;
 export function requiredSchema(schema: IJsonSchema): IJsonSchema;
 export function omitId(schema: IJsonSchema): IJsonSchema;
 export function withId(schema: IJsonSchema, id: string): IJsonSchema;
