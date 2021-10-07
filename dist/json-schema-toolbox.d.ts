@@ -3,7 +3,7 @@ export interface IJsonSchema {
     id?: string;
     properties?: {[k:string]: IJsonSchema};
     items?: IJsonSchema;
-    default?: string[];
+    default?: any;
     required?: string[] | boolean;
 }
 
@@ -19,7 +19,7 @@ export const booleanSchema: IJsonSchema;
 export const trueSchema: IJsonSchema;
 export const falseSchema: IJsonSchema;
 
-export function objectSchema(properties?: IJsonSchema[]): IJsonSchema;
+export function objectSchema(properties?: {[k:string]: IJsonSchema}, defaultValue?): IJsonSchema;
 export function arraySchema(itemSchema: IJsonSchema, defaultValue?): IJsonSchema;
 export function requiredSchema(schema: IJsonSchema): IJsonSchema;
 export function omitId(schema: IJsonSchema): IJsonSchema;

@@ -37,10 +37,11 @@ export function arraySchema(schema, defaultValue = []) {
   };
 }
 
-export function objectSchema(properties=[]) {
+export function objectSchema(properties={}, defaultValue = {}) {
   return {
     type: 'object',
     properties,
+    default: defaultValue,
   }
 }
 

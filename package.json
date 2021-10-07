@@ -1,6 +1,6 @@
 {
   "name": "json-schema-toolbox",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "json schema toolbox",
   "main": "dist/json-schema-toolbox.js",
   "types": "dist/json-schema-toolbox.d.ts",
